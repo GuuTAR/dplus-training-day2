@@ -4,12 +4,40 @@ import TodoItem from '../component/TodoItem';
 import { deleteTodo, getTodos, postAddTodo, putUpdataTodo } from '../service/todo.service';
 
 const Div = styled.div`
-  text-align: center;
+    text-align: center;
+`
+
+const DataDiv = styled.div`
+    display: flex;
+    flex-flow: column wrap;
+    align-items: center;
+
+    margin-top: 10px;
+`
+
+const Input = styled.input`
+    padding-left: 20px;
+
+    width: 500px;
+    height: 30px;
+
+    border: #cccccc solid 0.05rem;
+`
+
+const AddButton = styled.input`
+    background-color: #1fae98;
+    color: white;
+    border: none;
+
+    height: 33.6px;
+    width: 50px;
 `
 
 const TodoPage = () => {
     const [todoLists, setTodoLists] = useState([])
     const [todo, setTodo] = useState("")
+
+    const [loadFinish, setLoadFinish] = useState(false)
 
     useEffect(() => {
         fetchData()
@@ -18,6 +46,7 @@ const TodoPage = () => {
     const fetchData = async () => {
         const result = await getTodos()
         setTodoLists(result?.data)
+        setLoadFinish(true)
     }
 
     const renderTodos = (todo, idx) => {
@@ -33,22 +62,22 @@ const TodoPage = () => {
         // Local state
         const localTodoStuc = {
             _id: todoLists.length,
-            title: `${todo} (GuuTAR)`
+            title: todo
         }
         if (todo !== "") setTodoLists(todolists => [...todolists, localTodoStuc])
 
         // Server state
-        await postAddTodo({ title: `${todo} (GuuTAR)` })
+        await postAddTodo({ title: todo })
 
     }
 
     const handleUpdate = async (id, data) => {
         // Local state
         setTodoLists(todolists => todolists.map(todo =>
-            todo._id === id ? { ...todo, title: `${data} (GuuTAR)` } : todo))
+            todo._id === id ? { ...todo, title: data } : todo))
 
         // Server state
-        await putUpdataTodo(id, { title: `${data} (GuuTAR)` })
+        await putUpdataTodo(id, { title: data })
     }
 
     const handleDelete = async (id) => {
@@ -59,16 +88,17 @@ const TodoPage = () => {
         await deleteTodo(id)
     }
 
+    if (!loadFinish) return <Div></Div>
     return (
         <Div className="App">
             <h1>What's the Plan for Today</h1>
             <form onSubmit={handleAddTodo}>
-                <input type="text" placeholder="Enter some plan" value={todo} onChange={handleChange} />
-                <input type="submit" value="Add" />
+                <Input type="text" placeholder="Enter some plan" value={todo} onChange={handleChange} />
+                <AddButton type="submit" value="Add" />
             </form>
-            <div className="data">
+            <DataDiv className="data">
                 {todoLists.map(renderTodos)}
-            </div>
+            </DataDiv>
         </Div>
     );
 }
