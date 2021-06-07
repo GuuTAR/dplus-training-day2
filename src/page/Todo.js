@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import TodoItem from '../component/TodoItem';
-import { deleteTodo, getTodos, postAddTodo, putUpdataTodo } from '../service/todo.service';
+import { getUserInfo } from '../service/auth.service';
+import { deleteTodo, deleteTodoAuth, getTodos, postAddTodo, postAddTodoAuth, putUpdataTodo, putUpdataTodoAuth } from '../service/todo.service';
 
 const Div = styled.div`
     text-align: center;
@@ -59,33 +60,28 @@ const TodoPage = () => {
 
     const handleAddTodo = async (event) => {
         event.preventDefault()
-        // Local state
-        const localTodoStuc = {
-            _id: todoLists.length,
-            title: todo
-        }
-        if (todo !== "") setTodoLists(todolists => [...todolists, localTodoStuc])
 
-        // Server state
-        await postAddTodo({ title: todo })
+        const result = getUserInfo().user_id? 
+        await postAddTodoAuth({ title: todo }) : await postAddTodo({ title: todo }) 
 
+        if (todo !== "") setTodoLists(todolists => [
+            ...todolists, {
+            _id: result.data._id,
+            title: todo}
+        ])
+        setTodo("")
     }
 
     const handleUpdate = async (id, data) => {
-        // Local state
-        setTodoLists(todolists => todolists.map(todo =>
+        const result = getUserInfo().user_id? 
+        await putUpdataTodoAuth(id, { title: data }) : await putUpdataTodo(id, { title: data })
+        if(!result.error) setTodoLists(todolists => todolists.map(todo =>
             todo._id === id ? { ...todo, title: data } : todo))
-
-        // Server state
-        await putUpdataTodo(id, { title: data })
     }
 
     const handleDelete = async (id) => {
-        // Local state
-        setTodoLists(todolists => todolists.filter(todo => todo._id !== id))
-
-        // Server state
-        await deleteTodo(id)
+        const result = getUserInfo().user_id? await deleteTodoAuth(id) : await deleteTodo(id) 
+        if (!result.error) setTodoLists(todolists => todolists.filter(todo => todo._id !== id))
     }
 
     if (!loadFinish) return <Div></Div>
@@ -103,4 +99,4 @@ const TodoPage = () => {
     );
 }
 
-export default TodoPage;
+export default TodoPage
