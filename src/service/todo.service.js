@@ -56,3 +56,54 @@ export const deleteTodo = async (id) => {
     }
 }
 
+// Private
+export const postAddTodoAuth = async (data) => {
+    try {
+        const result = await fetch(`with_auth/todos/`, {
+            method: "POST",
+            headers: {
+                ...header,
+                Authorization: `Bearer ${sessionStorage.getItem("user_token")}`
+            },
+            body: JSON.stringify(data)
+        })
+        return result.json()
+    }
+    catch(error) {
+        console.error(error)
+    }
+} 
+
+export const putUpdataTodoAuth = async (id, data) => {
+    try {
+        const result = await fetch(`with_auth/todos/${id}`, {
+            method: "PUT",
+            headers: {
+                ...header,
+                Authorization: `Bearer ${sessionStorage.getItem("user_token")}`
+            },
+            body: JSON.stringify(data)
+        })
+        return result.json()
+    }
+    catch(error) {
+        console.error(error)
+    }
+} 
+
+export const deleteTodoAuth = async (id) => {
+    try {
+        const result = await fetch(`with_auth/todos/${id}`, {
+            method: "DELETE",
+            headers: {
+                ...header,
+                Authorization: `Bearer ${sessionStorage.getItem("user_token")}`
+            },
+        })
+        return result.json()
+    } 
+    catch (error) {
+        console.log(error)
+    }
+}
+
