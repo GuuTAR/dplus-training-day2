@@ -2,7 +2,7 @@ import { getUserInfo } from '../../service/auth.service'
 import * as TYPES from './types'
 
 const initialState = {
-    user_id: getUserInfo().user_id || "",
+    user_id: getUserInfo().user_id,
     loading: false,
     error: "",
 }
