@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import styled from 'styled-components';
 import TodoItem from '../component/TodoItem';
-import { getUserInfo } from '../service/auth.service';
-import { deleteTodo, deleteTodoAuth, getTodos, postAddTodo, postAddTodoAuth, putUpdataTodo, putUpdataTodoAuth } from '../service/todo.service';
+import { addTodo, deleteTodos, getTodoLists, updateTodo } from '../redux/todo/actions';
+import { deleteTodoAuth, postAddTodoAuth, putUpdataTodoAuth } from '../service/todo.service';
 
 const Div = styled.div`
     text-align: center;
@@ -35,20 +36,15 @@ const AddButton = styled.input`
 `
 
 const TodoPage = () => {
-    const [todoLists, setTodoLists] = useState([])
+    const dispatch = useDispatch()
+    const todoLists = useSelector(state => state.todo.todos) || []
+    const user_id = useSelector(state => state.user.user_id)
+
     const [todo, setTodo] = useState("")
 
-    const [loadFinish, setLoadFinish] = useState(false)
-
     useEffect(() => {
-        fetchData()
-    }, [])
-
-    const fetchData = async () => {
-        const result = await getTodos()
-        setTodoLists(result?.data)
-        setLoadFinish(true)
-    }
+        dispatch(getTodoLists())
+    }, [dispatch])
 
     const renderTodos = (todo, idx) => {
         return <TodoItem key={idx} id={todo._id} title={todo.title} handleDelete={handleDelete} handleUpdate={handleUpdate} />
@@ -60,31 +56,24 @@ const TodoPage = () => {
 
     const handleAddTodo = async (event) => {
         event.preventDefault()
+        if (todo === "") return
 
-        const result = getUserInfo().user_id? 
-        await postAddTodoAuth({ title: todo }) : await postAddTodo({ title: todo }) 
+        if (user_id) await postAddTodoAuth({ title: todo })
+        else dispatch(addTodo({ title: todo })) 
 
-        if (todo !== "") setTodoLists(todolists => [
-            ...todolists, {
-            _id: result.data._id,
-            title: todo}
-        ])
         setTodo("")
     }
 
-    const handleUpdate = async (id, data) => {
-        const result = getUserInfo().user_id? 
-        await putUpdataTodoAuth(id, { title: data }) : await putUpdataTodo(id, { title: data })
-        if(!result.error) setTodoLists(todolists => todolists.map(todo =>
-            todo._id === id ? { ...todo, title: data } : todo))
+    const handleUpdate = async (id, title) => {
+        if (user_id) await putUpdataTodoAuth(id, {_id: id, title})
+        else dispatch(updateTodo(id, {_id: id, title}))
     }
 
     const handleDelete = async (id) => {
-        const result = getUserInfo().user_id? await deleteTodoAuth(id) : await deleteTodo(id) 
-        if (!result.error) setTodoLists(todolists => todolists.filter(todo => todo._id !== id))
+        if (user_id) await deleteTodoAuth(id) 
+        else dispatch(deleteTodos(id))
     }
 
-    if (!loadFinish) return <Div></Div>
     return (
         <Div className="App">
             <h1>What's the Plan for Today</h1>
