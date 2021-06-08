@@ -1,6 +1,6 @@
-import { connect } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import styled from "styled-components";
-import { postLogout } from "../service/auth.service";
+import { logout } from "../redux/user/actions";
 import LoginForm from "./LoginForm";
 
 const H2 = styled.div`
@@ -28,14 +28,12 @@ const LogoutMenu = styled(FlexRow)`
     column-gap: 10px;
 `
 
-const Navbar = ({user_id, dispatch}) => {
+const Navbar = () => {
 
-    const handleLogout = async (event) => {
-        await postLogout()
-        dispatch({
-            type: "LOGOUT"
-        })
-    }
+    const user_id = useSelector(state => state.user.user_id)
+    const dispatch = useDispatch()
+
+    const handleLogout = () => dispatch(logout())
 
     if(user_id==="")
     return (
@@ -57,10 +55,4 @@ const Navbar = ({user_id, dispatch}) => {
     )
 }
 
-const mapStateToProps = (state) => {
-    return {
-      ...state
-    }
-  }
-
-export default connect(mapStateToProps)(Navbar)
+export default Navbar

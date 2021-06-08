@@ -1,7 +1,7 @@
 import { useState } from "react";
-import { connect } from "react-redux";
+import { useDispatch } from "react-redux";
 import styled from "styled-components";
-import { getUserInfo, postLogin } from "../service/auth.service";
+import { login } from "../redux/user/actions";
 
 const H3 = styled.h3`
     margin: 0px
@@ -24,25 +24,21 @@ const Input = styled.input`
     border-radius: 6px;
 `
 
-const LoginForm = ({ dispatch }) => {
+const LoginForm = () => {
+
+    const dispatch = useDispatch()
 
     const [email, setEmail] = useState("")
     const [password, setPassword] = useState("")
 
-    const handleSubmit = async (event) => {
+    const handleSubmit = (event) => {
         event.preventDefault()
-
         const payload = {
             email: email,
             password: password,
         }
-        await postLogin(payload)
-        dispatch({
-            type: "LOGIN",
-            data: {
-                user_id: getUserInfo().user_id || ""
-            }
-        })
+
+        dispatch(login(payload))
     }
 
     return (
@@ -60,4 +56,4 @@ const LoginForm = ({ dispatch }) => {
     );
 }
 
-export default connect()(LoginForm);
+export default LoginForm;
