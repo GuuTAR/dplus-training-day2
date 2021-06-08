@@ -35,22 +35,21 @@ const Navbar = () => {
 
     const handleLogout = () => dispatch(logout())
 
-    if(user_id==="")
-    return (
-        <FlexRow className="navbar-guest">
-            <H2>TODO List</H2>
-            <div>
-                <LoginForm />
-            </div>
-        </FlexRow>
-    );
-    else return (
+    if (user_id) return (
         <FlexRow className="navbar-guest">
             <H2>TODO List</H2>
             <LogoutMenu>
                 <H2>User ID: {user_id}</H2>
                 <button onClick={handleLogout}>Logout</button>
             </LogoutMenu>
+        </FlexRow>
+    )
+    else return (
+        <FlexRow className="navbar-guest">
+            <H2>TODO List</H2>
+            <div>
+                <LoginForm />
+            </div>
         </FlexRow>
     )
 }
