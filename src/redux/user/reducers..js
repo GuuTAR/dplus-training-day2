@@ -12,7 +12,7 @@ export const userReducer = (state = initialState, { type, payload = { } }) => {
         case TYPES.LOGIN_REQ:
             return {...state, loading: true}
         case TYPES.LOGIN_SUCCESS:
-            return {...state, user_id: getUserInfo().user_id || "" , loading: false}
+            return {...state, user_id: getUserInfo().user_id, loading: false}
         case TYPES.LOGIN_FAIL:
             return {...state, error: payload.error , loading: false}
         case TYPES.LOGOUT_REQ:
